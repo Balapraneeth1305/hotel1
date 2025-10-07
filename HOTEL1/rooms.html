@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rooms - Hotel Management</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins,sans-serif;}
+body{background:linear-gradient(135deg,#dbeafe,#f3f4f6);padding:20px;}
+.container{max-width:1200px;margin:auto;background:#fff;border-radius:15px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+h1{text-align:center;color:#0078d7;margin-bottom:20px;}
+.btn{background:#0078d7;color:#fff;padding:8px 15px;border:none;border-radius:8px;cursor:pointer;transition:.3s;margin:5px;}
+.btn:hover{background:#005ea6;}
+nav{display:flex;justify-content:center;margin-bottom:20px;}
+input,select{padding:8px;border:1px solid #ccc;border-radius:6px;width:100%;margin:5px 0;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #ddd;}
+th{background:#0078d7;color:#fff;}
+tr:hover{background:#f1f5f9;}
+.form-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Room Management</h1>
+<nav>
+<button class="btn" onclick="goTo('dashboard.html')">Dashboard</button>
+<button class="btn" onclick="goTo('guests.html')">Guests</button>
+<button class="btn" onclick="logout()">Logout</button>
+</nav>
+
+<div class="form-container">
+<input type="text" id="roomId" placeholder="Room ID (e.g. R101)" />
+<select id="roomType"><option value="">Select Type</option><option>Standard</option><option>Deluxe</option><option>Suite</option></select>
+<input type="number" id="roomPrice" placeholder="Price per night" />
+<select id="roomStatus"><option>Available</option><option>Occupied</option><option>Maintenance</option></select>
+<button class="btn" onclick="addRoom()">Add / Update Room</button>
+</div>
+
+<input type="text" id="roomSearch" placeholder="Search room..." oninput="renderRooms()">
+<table id="roomTable">
+<thead><tr><th>Room ID</th><th>Type</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+if(!sessionStorage.getItem("loggedIn")) window.location.href="index.html";
+function logout(){sessionStorage.removeItem("loggedIn"); window.location.href="index.html";}
+function goTo(page){window.location.href=page;}
+
+let rooms = JSON.parse(localStorage.getItem("rooms"))||[];
+let editingRoom=null;
+
+function saveRooms(){ localStorage.setItem("rooms",JSON.stringify(rooms)); renderRooms(); }
+
+function addRoom(){
+const id=document.getElementById("roomId").value.trim();
+const type=document.getElementById("roomType").value;
+const price=document.getElementById("roomPrice").value;
+const status=document.getElementById("roomStatus").value;
+if(!id||!type||!price)return alert("Fill all fields");
+const room={id,type,price,status};
+const existing=rooms.findIndex(r=>r.id===id);
+if(existing>=0)rooms[existing]=room;else rooms.push(room);
+saveRooms(); clearForm();
+}
+
+function editRoom(id){
+const r=rooms.find(x=>x.id===id);
+if(!r)return;
+document.getElementById("roomId").value=r.id;
+document.getElementById("roomType").value=r.type;
+document.getElementById("roomPrice").value=r.price;
+document.getElementById("roomStatus").value=r.status;
+editingRoom=id;
+}
+
+function deleteRoom(id){if(confirm("Delete this room?")){rooms=rooms.filter(r=>r.id!==id);saveRooms();}}
+
+function clearForm(){
+document.getElementById("roomId").value="";
+document.getElementById("roomType").value="";
+document.getElementById("roomPrice").value="";
+document.getElementById("roomStatus").value="Available";
+editingRoom=null;
+}
+
+function renderRooms(){
+const search=document.getElementById("roomSearch").value.toLowerCase();
+const tbody=document.querySelector("#roomTable tbody");tbody.innerHTML="";
+rooms.filter(r=>r.id.toLowerCase().includes(search)||r.type.toLowerCase().includes(search)||r.status.toLowerCase().includes(search))
+.forEach(r=>{
+const tr=document.createElement("tr");
+tr.innerHTML=`<td>${r.id}</td><td>${r.type}</td><td>₹${r.price}</td><td>${r.status}</td>
+<td><button class="btn" onclick="editRoom('${r.id}')">Edit</button>
+<button class="btn" style="background:#e11d48" onclick="deleteRoom('${r.id}')">Delete</button></td>`;
+tbody.appendChild(tr);
+});
+}
+
+renderRooms();
+</script>
+</body>
+</html>

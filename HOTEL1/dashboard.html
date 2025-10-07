@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - Hotel Management</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins,sans-serif}
+body{background:linear-gradient(135deg,#dbeafe,#f3f4f6);padding:20px;}
+.container{max-width:1200px;margin:auto;background:#fff;border-radius:15px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+h1{text-align:center;color:#0078d7;margin-bottom:20px;}
+.btn{background:#0078d7;color:#fff;padding:8px 15px;border:none;border-radius:8px;cursor:pointer;transition:.3s;margin:5px;}
+.btn:hover{background:#005ea6;}
+nav{display:flex;justify-content:center;margin-bottom:20px;}
+.dashboard-cards{display:flex;justify-content:space-around;flex-wrap:wrap;}
+.stat-box{background:#f3f4f6;padding:20px;border-radius:8px;text-align:center;margin:10px;flex:1;min-width:150px;font-size:1.2rem;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🏨 Hotel Management Dashboard</h1>
+<nav>
+<button class="btn" onclick="goTo('rooms.html')">Rooms</button>
+<button class="btn" onclick="goTo('guests.html')">Guests</button>
+<button class="btn" onclick="logout()">Logout</button>
+</nav>
+<div class="dashboard-cards">
+<div class="stat-box" id="totalRooms">Total Rooms: 0</div>
+<div class="stat-box" id="availableRooms">Available Rooms: 0</div>
+<div class="stat-box" id="occupiedRooms">Occupied Rooms: 0</div>
+<div class="stat-box" id="totalGuests">Total Guests: 0</div>
+</div>
+</div>
+
+<script>
+if(!sessionStorage.getItem("loggedIn")) window.location.href="index.html";
+
+function logout(){sessionStorage.removeItem("loggedIn"); window.location.href="index.html";}
+function goTo(page){window.location.href=page;}
+
+const rooms = JSON.parse(localStorage.getItem("rooms"))||[];
+const guests = JSON.parse(localStorage.getItem("guests"))||[];
+
+document.getElementById("totalRooms").innerText="Total Rooms: "+rooms.length;
+document.getElementById("availableRooms").innerText="Available Rooms: "+rooms.filter(r=>r.status==='Available').length;
+document.getElementById("occupiedRooms").innerText="Occupied Rooms: "+rooms.filter(r=>r.status==='Occupied').length;
+document.getElementById("totalGuests").innerText="Total Guests: "+guests.length;
+</script>
+</body>
+</html>

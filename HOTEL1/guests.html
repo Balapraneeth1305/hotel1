@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guests - Hotel Management</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins,sans-serif;}
+body{background:linear-gradient(135deg,#dbeafe,#f3f4f6);padding:20px;}
+.container{max-width:1200px;margin:auto;background:#fff;border-radius:15px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+h1{text-align:center;color:#0078d7;margin-bottom:20px;}
+.btn{background:#0078d7;color:#fff;padding:8px 15px;border:none;border-radius:8px;cursor:pointer;transition:.3s;margin:5px;}
+.btn:hover{background:#005ea6;}
+nav{display:flex;justify-content:center;margin-bottom:20px;}
+input,select{padding:8px;border:1px solid #ccc;border-radius:6px;width:100%;margin:5px 0;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{text-align:left;padding:10px;border-bottom:1px solid #ddd;}
+th{background:#0078d7;color:#fff;}
+tr:hover{background:#f1f5f9;}
+.form-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Guest Management</h1>
+<nav>
+<button class="btn" onclick="goTo('dashboard.html')">Dashboard</button>
+<button class="btn" onclick="goTo('rooms.html')">Rooms</button>
+<button class="btn" onclick="logout()">Logout</button>
+</nav>
+
+<div class="form-container">
+<input type="text" id="guestName" placeholder="Guest Name" />
+<input type="text" id="guestPhone" placeholder="Phone Number" />
+<input type="text" id="guestRoom" placeholder="Room ID" />
+<input type="date" id="checkIn" />
+<input type="date" id="checkOut" />
+<button class="btn" onclick="addGuest()">Add / Update Guest</button>
+</div>
+
+<table id="guestTable">
+<thead><tr><th>Name</th><th>Phone</th><th>Room</th><th>Check-in</th><th>Check-out</th><th>Actions</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+if(!sessionStorage.getItem("loggedIn")) window.location.href="index.html";
+function logout(){sessionStorage.removeItem("loggedIn"); window.location.href="index.html";}
+function goTo(page){window.location.href=page;}
+
+let guests=JSON.parse(localStorage.getItem("guests"))||[];
+let rooms=JSON.parse(localStorage.getItem("rooms"))||[];
+let editingGuest=null;
+
+function saveGuests(){localStorage.setItem("guests",JSON.stringify(guests)); renderGuests();}
+
+function addGuest(){
+const name=document.getElementById("guestName").value.trim();
+const phone=document.getElementById("guestPhone").value.trim();
+const roomId=document.getElementById("guestRoom").value.trim();
+const checkIn=document.getElementById("checkIn").value;
+const checkOut=document.getElementById("checkOut").value;
+if(!name||!phone)return alert("Fill all fields");
+const guest={id:editingGuest||Date.now(),name,phone,roomId,checkIn,checkOut};
+const existing=guests.findIndex(g=>g.id===guest.id);
+if(existing>=0)guests[existing]=guest;else guests.push(guest);
+
+const roomIndex=rooms.findIndex(r=>r.id===roomId);
+if(roomIndex>=0)rooms[roomIndex].status="Occupied";
+localStorage.setItem("rooms",JSON.stringify(rooms));
+saveGuests(); clearForm();
+}
+
+function editGuest(id){
+const g=guests.find(x=>x.id===id);
+if(!g)return;
+document.getElementById("guestName").value=g.name;
+document.getElementById("guestPhone").value=g.phone;
+document.getElementById("guestRoom").value=g.roomId;
+document.getElementById("checkIn").value=g.checkIn;
+document.getElementById("checkOut").value=g.checkOut;
+editingGuest=id;
+}
+
+function deleteGuest(id){if(confirm("Delete this guest?")){guests=guests.filter(x=>x.id!==id);saveGuests();}}
+
+function clearForm(){
+document.getElementById("guestName").value="";
+document.getElementById("guestPhone").value="";
+document.getElementById("guestRoom").value="";
+document.getElementById("checkIn").value="";
+document.getElementById("checkOut").value="";
+editingGuest=null;
+}
+
+function renderGuests(){
+const tbody=document.querySelector("#guestTable tbody");tbody.innerHTML="";
+guests.forEach(g=>{
+const tr=document.createElement("tr");
+tr.innerHTML=`<td>${g.name}</td><td>${g.phone}</td><td>${g.roomId||"—"}</td><td>${g.checkIn||"—"}</td><td>${g.checkOut||"—"}</td>
+<td><button class="btn" onclick="editGuest(${g.id})">Edit</button>
+<button class="btn" style="background:#e11d48" onclick="deleteGuest(${g.id})">Delete</button></td>`;
+tbody.appendChild(tr);
+});
+}
+
+renderGuests();
+</script>
+</body>
+</html>

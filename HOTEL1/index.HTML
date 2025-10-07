@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Hotel Management</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Poppins,sans-serif}
+body{display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#dbeafe,#f3f4f6);}
+.login-container{background:#fff;padding:40px 30px;border-radius:15px;box-shadow:0 4px 20px rgba(0,0,0,0.15);width:350px;text-align:center;}
+h2{margin-bottom:25px;color:#0078d7;}
+input{width:100%;padding:12px 15px;margin:10px 0;border:1px solid #ccc;border-radius:8px;font-size:16px;}
+.btn{width:100%;padding:12px;background:#0078d7;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer;margin-top:15px;transition:.3s;}
+.btn:hover{background:#005ea6;}
+.error{color:#e11d48;margin-top:10px;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="login-container">
+<h2>Hotel Management Login</h2>
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+<button class="btn" onclick="login()">Login</button>
+<div class="error" id="errorMsg"></div>
+</div>
+
+<script>
+function login(){
+  const user=document.getElementById("username").value.trim();
+  const pass=document.getElementById("password").value.trim();
+  const errorMsg=document.getElementById("errorMsg");
+  if(user==="admin" && pass==="12345"){
+    sessionStorage.setItem("loggedIn", true);
+    window.location.href="dashboard.html";
+  } else errorMsg.textContent="Invalid username or password!";
+}
+document.addEventListener("keydown", e=>{if(e.key==="Enter") login();});
+</script>
+</body>
+</html>
